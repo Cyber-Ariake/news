@@ -1,6 +1,8 @@
 package com.example.news_2
 
 import android.content.Context
+import android.content.Intent
+import android.net.Uri
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
 import android.util.Log
@@ -8,10 +10,12 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.*
+import androidx.core.net.toUri
 import com.eclipsesource.json.Json
 import com.eclipsesource.json.JsonArray
 import kotlinx.android.synthetic.main.activity_main.*
 import kotlinx.coroutines.*
+import java.net.URI
 
 
 class MainActivity : AppCompatActivity() {
@@ -27,12 +31,19 @@ class MainActivity : AppCompatActivity() {
         onParallelGetButtonClick()
         val news = List(jarray.size()){i->NewsData(jarray.get(i).asObject().getString("title","title"),
             jarray.get(i).asObject().getString("href","href"),
-            jarray.get(i).asObject().getString("time","time"))}
+            jarray.get(i).asObject().getString("time","time"),
+            jarray.get(i).asObject().getString("site","site"))}
         Log.d("TAG","ここおおおおおおおおおおおおおおおおおおおおお")
         Log.d("TAG", Integer.toString(jarray.size()))
 
         val adapter = NewsListAdapter(this, news)
         myListView.adapter = adapter
+
+        myListView.setOnItemClickListener { adapterView, view, position, id ->
+            var uri: Uri = Uri.parse(view.findViewById<TextView>(R.id.hrefTextView).text.toString())
+            var i: Intent = Intent(Intent.ACTION_VIEW,uri)
+            startActivity(i)
+        }
 
 //        val names = listOf(
 //            "あじさい",
@@ -131,14 +142,16 @@ class MainActivity : AppCompatActivity() {
         override fun getView(position: Int, convertView: View?, parent: ViewGroup): View {
 
             var view = convertView
+            var link = "a"
             var holder: ViewHolder
 
             if(view == null) {
                 view = layoutInflater.inflate(R.layout.list_item, parent, false)
                 holder = ViewHolder(
                     view.findViewById(R.id.titleTextView)!!,
-                    view.findViewById(R.id.hrefTextView),
-                    view.findViewById(R.id.timeTexiView)
+                    view.findViewById(R.id.siteTextView),
+                    view.findViewById(R.id.timeTexiView),
+                    view.findViewById(R.id.hrefTextView)
                 )
                 view.tag = holder
             } else {
@@ -147,16 +160,17 @@ class MainActivity : AppCompatActivity() {
 
             val news = getItem(position) as NewsData
             holder.titleTextView.text = news.title
-            holder.hrefTextView.text = news.href
+            holder.siteTextView.text = news.site
             holder.timeTextView.text = news.time
+            holder.hrefTextView.text = news.href
 
             return view!!
 
         }
     }
 
-    data class NewsData(val title: String, val href: String, val time: String)
-    data class ViewHolder(val titleTextView: TextView, val hrefTextView: TextView, val timeTextView: TextView)
+    data class NewsData(val title: String, val href: String, val time: String, val site: String)
+    data class ViewHolder(val titleTextView: TextView, val siteTextView: TextView, val timeTextView: TextView, val hrefTextView: TextView)
 
     fun onParallelGetButtonClick() {
         runBlocking{
