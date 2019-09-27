@@ -21,7 +21,7 @@ import java.net.URI
 class MainActivity : AppCompatActivity() {
 
 //    val URL = "http://weather.livedoor.com/forecast/webservice/json/v1?city=400040" //サンプルとしてライブドアのお天気Webサービスを利用します
-    val URL = "http://52.68.215.201/news.json"
+    val URL = "http://52.68.215.201/news_list.json"
     var result = ""
     var jarray: JsonArray = JsonArray()
 
